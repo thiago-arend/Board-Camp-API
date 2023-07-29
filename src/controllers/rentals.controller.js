@@ -26,3 +26,26 @@ export async function createRental(req, res) {
         res.status(500).send(error.message);
     }
 }
+
+export async function getRentals(req, res) {
+
+    try {
+        const result = await db.query(
+            `SELECT r.*, c.name AS customer, g.name AS game
+                FROM rentals r
+                    JOIN customers c ON c.id=r."customerId"
+                    JOIN games g ON g.id=r."gameId";`
+        );
+
+        const rentalsObjArr = result.rows.map((r) => {
+            r.customer = {id: r.customerId, name: r.customer};
+            r.game = {id: r.gameId, name: r.game};
+
+            return r;
+        });
+
+        res.send(rentalsObjArr);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
