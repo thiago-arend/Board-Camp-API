@@ -19,3 +19,14 @@ export async function createCustomer(req, res) {
         res.status(500).send(error.message);
     }
 }
+
+export async function getCustomers(req, res) {
+
+    try {
+        const customersArray = await db.query(`SELECT * FROM customers;`);
+
+        res.send(customersArray.rows);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
