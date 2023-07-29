@@ -38,13 +38,29 @@ export async function getRentals(req, res) {
         );
 
         const rentalsObjArr = result.rows.map((r) => {
-            r.customer = {id: r.customerId, name: r.customer};
-            r.game = {id: r.gameId, name: r.game};
+            r.customer = { id: r.customerId, name: r.customer };
+            r.game = { id: r.gameId, name: r.game };
 
             return r;
         });
 
         res.send(rentalsObjArr);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+export async function deleteRental(req, res) {
+    const { id } = req.params;
+
+    try {
+        const finished = await db.query(`SELECT * FROM rentals WHERE id=$1 AND "returnDate" IS NULL;`, [id]);
+        if (finished.rowCount === 1) return res.status(400).send("O jogo ainda não foi devolvido!");
+
+        const result = await db.query("DELETE FROM rentals WHERE id=$1;", [id]);
+        if (result.rowCount === 0) return res.status(404).send("Id não existe!");
+
+        res.sendStatus(200);
     } catch (error) {
         res.status(500).send(error.message);
     }
