@@ -37,12 +37,12 @@ export async function getRentals(req, res) {
                 FROM rentals r
                     JOIN customers c ON c.id=r."customerId"
                     JOIN games g ON g.id=r."gameId"`
-                    + ((customerId && gameId) ? `WHERE c.id=${customerId} AND g.id=${gameId}` : ``)
-                    + (customerId ? `WHERE c.id=${customerId}` : ``)
-                    + (gameId ? `WHERE g.id=${gameId}` : ``)
-                    + ((offset && limit) ? `OFFSET ${offset} LIMIT ${limit}` : ``)
-                    + ((offset) ? `OFFSET ${offset}` : ``)
-                    + ((limit) ? `LIMIT ${limit}` : ``)
+                    + ((customerId && gameId) ? ` WHERE c.id=${customerId} AND g.id=${gameId}` : ``)
+                    + (customerId ? ` WHERE c.id=${customerId}` : ``)
+                    + (gameId ? ` WHERE g.id=${gameId}` : ``)
+                    + ((offset && limit) ? ` OFFSET ${offset} LIMIT ${limit}` : ``)
+                    + ((offset) ? ` OFFSET ${offset}` : ``)
+                    + ((limit) ? ` LIMIT ${limit}` : ``)
         );
 
         const rentalsObjArr = result.rows.map((r) => {

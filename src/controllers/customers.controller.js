@@ -25,9 +25,9 @@ export async function getCustomers(req, res) {
     try {
         const result = await db.query(`SELECT * FROM customers`
             + (cpf ? ` WHERE cpf LIKE '${cpf}%'` : ``)
-            + ((offset && limit) ? `OFFSET ${offset} LIMIT ${limit}` : ``)
-            + ((offset) ? `OFFSET ${offset}` : ``)
-            + ((limit) ? `LIMIT ${limit}` : ``)
+            + ((offset && limit) ? ` OFFSET ${offset} LIMIT ${limit}` : ``)
+            + ((offset) ? ` OFFSET ${offset}` : ``)
+            + ((limit) ? ` LIMIT ${limit}` : ``)
 
         )
 
