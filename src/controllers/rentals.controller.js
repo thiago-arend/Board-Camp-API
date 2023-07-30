@@ -28,7 +28,7 @@ export async function createRental(req, res) {
 }
 
 export async function getRentals(req, res) {
-    const { customerId, gameId, offset, limit } = req.query;
+    const { customerId, gameId, offset, limit, order, desc } = req.query;
 
     try {
 
@@ -40,7 +40,8 @@ export async function getRentals(req, res) {
                     + ((customerId && gameId) ? ` WHERE c.id=${customerId} AND g.id=${gameId}` : ``)
                     + (customerId ? ` WHERE c.id=${customerId}` : ``)
                     + (gameId ? ` WHERE g.id=${gameId}` : ``)
-                    + ((offset && limit) ? ` OFFSET ${offset} LIMIT ${limit}` : ``)
+                    + ((order) ? ` ORDER BY ${order}` : ``)
+                    + ((order && desc && desc === "true") ? ` DESC` : ``)
                     + ((offset) ? ` OFFSET ${offset}` : ``)
                     + ((limit) ? ` LIMIT ${limit}` : ``)
         );

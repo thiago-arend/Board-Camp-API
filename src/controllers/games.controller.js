@@ -19,16 +19,16 @@ export async function createGame(req, res) {
 }
 
 export async function getGames(req, res) {
-    const { name, offset, limit } = req.query;
+    const { name, offset, limit, order, desc } = req.query;
 
     try {
         const result = await db.query(`SELECT * FROM games`
             + (name ? ` WHERE name ILIKE '${name.toLowerCase()}%'` : ``)
-            + ((offset && limit) ? ` OFFSET ${offset} LIMIT ${limit}` : ``)
+            + ((order) ? ` ORDER BY ${order}` : ``)
+            + ((order && desc && desc === "true") ? ` DESC` : ``)
             + ((offset) ? ` OFFSET ${offset}` : ``)
             + ((limit) ? ` LIMIT ${limit}` : ``)
         );
-        //else result = await db.query(`SELECT * FROM games WHERE name ILIKE $1;`, [name.toLowerCase() + "%"]);
 
         res.send(result.rows);
     } catch (error) {
