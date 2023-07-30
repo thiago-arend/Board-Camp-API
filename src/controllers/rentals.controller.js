@@ -40,7 +40,7 @@ export async function getRentals(req, res) {
                     + ((customerId && gameId) ? ` WHERE c.id=${customerId} AND g.id=${gameId}` : ``)
                     + (customerId ? ` WHERE c.id=${customerId}` : ``)
                     + (gameId ? ` WHERE g.id=${gameId}` : ``)
-                    + ((order) ? ` ORDER BY ${order}` : ``)
+                    + ((order) ? ` ORDER BY "${order}"` : ``)
                     + ((order && desc && desc === "true") ? ` DESC` : ``)
                     + ((offset) ? ` OFFSET ${offset}` : ``)
                     + ((limit) ? ` LIMIT ${limit}` : ``)

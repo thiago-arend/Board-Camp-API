@@ -24,7 +24,7 @@ export async function getGames(req, res) {
     try {
         const result = await db.query(`SELECT * FROM games`
             + (name ? ` WHERE name ILIKE '${name.toLowerCase()}%'` : ``)
-            + ((order) ? ` ORDER BY ${order}` : ``)
+            + ((order) ? ` ORDER BY "${order}"` : ``)
             + ((order && desc && desc === "true") ? ` DESC` : ``)
             + ((offset) ? ` OFFSET ${offset}` : ``)
             + ((limit) ? ` LIMIT ${limit}` : ``)
