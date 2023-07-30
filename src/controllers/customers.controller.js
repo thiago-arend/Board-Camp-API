@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { db } from "../database/database.connection.js";
 
 export async function createCustomer(req, res) {
@@ -23,7 +24,7 @@ export async function getCustomers(req, res) {
     try {
         const result = await db.query(`SELECT * FROM customers;`);
         res.send(result.rows.map(r => {
-            return {...r, birthday: r.birthday.slice(0, 10)};
+            return {...r, birthday: dayjs(r.birthday).format("YYYY-MM-DD")};
         }));
     } catch (error) {
         res.status(500).send(error.message);
@@ -36,7 +37,8 @@ export async function getCustomer(req, res) {
     try {
         const result = await db.query(`SELECT * FROM customers WHERE id=$1;`, [id]);
         if (result.rowCount === 0) return res.status(404).send("O cliente não existe!");
-        const formatedData = {...result.rows[0], birthday: result.rows[0].birthday.slice(0, 10)};
+        const formatedData = {...result.rows[0], 
+            birthday: dayjs(result.rows[0].birthday).format("YYYY-MM-DD")};
 
         res.send(formatedData);
 
