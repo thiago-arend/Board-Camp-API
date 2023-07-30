@@ -22,8 +22,9 @@ export async function getCustomers(req, res) {
 
     try {
         const result = await db.query(`SELECT * FROM customers;`);
-
-        res.send(result.rows);
+        res.send(result.rows.map(r => {
+            return {...r, birthday: r.birthday.slice(0, 10)};
+        }));
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -35,8 +36,9 @@ export async function getCustomer(req, res) {
     try {
         const result = await db.query(`SELECT * FROM customers WHERE id=$1;`, [id]);
         if (result.rowCount === 0) return res.status(404).send("O cliente não existe!");
+        const formatedData = {...result.rows[0], birthday: result.rows[0].birthday.slice(0, 10)};
 
-        res.send(result.rows[0]);
+        res.send(formatedData);
 
     } catch (error) {
         res.status(500).send(error.message);
