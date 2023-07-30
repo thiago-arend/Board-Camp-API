@@ -9,7 +9,7 @@ export async function createGame(req, res) {
 
         await db.query(
             `INSERT INTO games (name, image, "stockTotal", "pricePerDay") VALUES ($1, $2, $3, $4);`,
-                [name, image, stockTotal, pricePerDay]
+            [name, image, stockTotal, pricePerDay]
         );
 
         res.sendStatus(201);
@@ -19,9 +19,12 @@ export async function createGame(req, res) {
 }
 
 export async function getGames(req, res) {
+    const { name } = req.query;
 
     try {
-        const result = await db.query(`SELECT * FROM games;`);
+        let result;
+        if (name === undefined) result = await db.query(`SELECT * FROM games;`);
+        else result = await db.query(`SELECT * FROM games WHERE name ILIKE $1;`, [name.toLowerCase() + "%"]);
 
         res.send(result.rows);
     } catch (error) {

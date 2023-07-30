@@ -28,13 +28,22 @@ export async function createRental(req, res) {
 }
 
 export async function getRentals(req, res) {
+    const { customerId } = req.query;
 
     try {
-        const result = await db.query(
+        let result;
+        if (customerId === undefined)
+            result = await db.query(
+                `SELECT r.*, c.name AS customer, g.name AS game
+                    FROM rentals r
+                        JOIN customers c ON c.id=r."customerId"
+                        JOIN games g ON g.id=r."gameId"`);
+        else result = await db.query(
             `SELECT r.*, c.name AS customer, g.name AS game
                 FROM rentals r
                     JOIN customers c ON c.id=r."customerId"
-                    JOIN games g ON g.id=r."gameId";`
+                    JOIN games g ON g.id=r."gameId"
+                    WHERE c.id=$1;`, [customerId]
         );
 
         const rentalsObjArr = result.rows.map((r) => {
@@ -72,28 +81,28 @@ export async function returnRental(req, res) {
     try {
         const rentalIdExists = await db.query("SELECT * FROM rentals WHERE id=$1", [id]);
         if (rentalIdExists.rowCount === 0) return res.status(404).send("O aluguel selecionado não exise!");
-    
+
         const rentalFinished = await db
             .query(`SELECT * FROM rentals WHERE id=$1 AND "returnDate" IS NOT NULL`, [id]);
         if (rentalFinished.rowCount === 1) return res.status(400).send("O aluguel selecionado já foi devolvido!");
-    
+
         const rentalData = await db.query(
             `SELECT r."daysRented", r."rentDate", g."pricePerDay" FROM rentals r
                 JOIN games g ON g.id=r."gameId"
                 WHERE r.id=$1;`, [id]
         );
-    
+
         let delayFee;
         const returnDate = dayjs().format("YYYY-MM-DD"); // today's date
 
         // atraso = diaEntrega - diaLocação - diasAlugados
         const diasAtraso = dayjs(returnDate).diff(rentalData.rows[0].rentDate, 'day')
-                - rentalData.rows[0].daysRented;
+            - rentalData.rows[0].daysRented;
 
         (diasAtraso > 0) ? delayFee = diasAtraso * rentalData.rows[0].pricePerDay : delayFee = 0;
 
         await db.query(`UPDATE rentals SET ("returnDate", "delayFee") = ($1, $2) WHERE id=$3;`,
-        [returnDate, delayFee, id]);
+            [returnDate, delayFee, id]);
 
         res.sendStatus(200);
     } catch (error) {

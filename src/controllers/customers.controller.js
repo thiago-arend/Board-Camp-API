@@ -20,11 +20,15 @@ export async function createCustomer(req, res) {
 }
 
 export async function getCustomers(req, res) {
+    const { cpf } = req.query;
 
     try {
-        const result = await db.query(`SELECT * FROM customers;`);
+        let result;
+        if (cpf === undefined) result = await db.query(`SELECT * FROM customers;`);
+        else result = await db.query(`SELECT * FROM customers WHERE cpf LIKE $1;`, [cpf + "%"]);
+
         res.send(result.rows.map(r => {
-            return {...r, birthday: dayjs(r.birthday).format("YYYY-MM-DD")};
+            return { ...r, birthday: dayjs(r.birthday).format("YYYY-MM-DD") };
         }));
     } catch (error) {
         res.status(500).send(error.message);
@@ -37,8 +41,10 @@ export async function getCustomer(req, res) {
     try {
         const result = await db.query(`SELECT * FROM customers WHERE id=$1;`, [id]);
         if (result.rowCount === 0) return res.status(404).send("O cliente não existe!");
-        const formatedData = {...result.rows[0], 
-            birthday: dayjs(result.rows[0].birthday).format("YYYY-MM-DD")};
+        const formatedData = {
+            ...result.rows[0],
+            birthday: dayjs(result.rows[0].birthday).format("YYYY-MM-DD")
+        };
 
         res.send(formatedData);
 
