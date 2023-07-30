@@ -28,22 +28,21 @@ export async function createRental(req, res) {
 }
 
 export async function getRentals(req, res) {
-    const { customerId } = req.query;
+    const { customerId, gameId, offset, limit } = req.query;
 
     try {
-        let result;
-        if (customerId === undefined)
-            result = await db.query(
-                `SELECT r.*, c.name AS customer, g.name AS game
-                    FROM rentals r
-                        JOIN customers c ON c.id=r."customerId"
-                        JOIN games g ON g.id=r."gameId"`);
-        else result = await db.query(
+
+        const result = await db.query(
             `SELECT r.*, c.name AS customer, g.name AS game
                 FROM rentals r
                     JOIN customers c ON c.id=r."customerId"
-                    JOIN games g ON g.id=r."gameId"
-                    WHERE c.id=$1;`, [customerId]
+                    JOIN games g ON g.id=r."gameId"`
+                    + ((customerId && gameId) ? `WHERE c.id=${customerId} AND g.id=${gameId}` : ``)
+                    + (customerId ? `WHERE c.id=${customerId}` : ``)
+                    + (gameId ? `WHERE g.id=${gameId}` : ``)
+                    + ((offset && limit) ? `OFFSET ${offset} LIMIT ${limit}` : ``)
+                    + ((offset) ? `OFFSET ${offset}` : ``)
+                    + ((limit) ? `LIMIT ${limit}` : ``)
         );
 
         const rentalsObjArr = result.rows.map((r) => {
