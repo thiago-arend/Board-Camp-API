@@ -28,7 +28,7 @@ export async function createRental(req, res) {
 }
 
 export async function getRentals(req, res) {
-    const { customerId, gameId, offset, limit, order, desc } = req.query;
+    const { customerId, gameId, offset, limit, order, desc, status, startDate } = req.query;
 
     try {
 
@@ -40,6 +40,12 @@ export async function getRentals(req, res) {
                     + ((customerId && gameId) ? ` WHERE c.id=${customerId} AND g.id=${gameId}` : ``)
                     + (customerId ? ` WHERE c.id=${customerId}` : ``)
                     + (gameId ? ` WHERE g.id=${gameId}` : ``)
+                    + ((gameId || customerId || startDate) && (status === "open") ? ` AND "returnDate" IS NULL` : ``)
+                    + ((gameId || customerId || startDate) && (status === "closed") ? ` AND "returnDate" IS NOT NULL` : ``)
+                    + ((!gameId && !customerId && !startDate) && (status === "open") ? ` WHERE "returnDate" IS NULL` : ``)
+                    + ((!gameId && !customerId && !startDate) && (status === "closed") ? ` WHERE "returnDate" IS NOT NULL` : ``)
+                    + ((gameId || customerId || status) && (startDate) ? ` AND "rentDate" >= '${startDate}'` : ``)
+                    + ((!gameId && !customerId && !status) && (startDate) ? ` WHERE "rentDate" >= '${startDate}'` : ``)
                     + ((order) ? ` ORDER BY "${order}"` : ``)
                     + ((order && desc && desc === "true") ? ` DESC` : ``)
                     + ((offset) ? ` OFFSET ${offset}` : ``)
